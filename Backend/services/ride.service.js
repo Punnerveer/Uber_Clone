@@ -29,8 +29,6 @@ async function getFare(pickup, destination) {
         moto: 1.5
     };
 
-
-
     const fare = {
         auto: Math.round(baseFare.auto + ((distanceTime.distance.value / 1000) * perKmRate.auto) + ((distanceTime.duration.value / 60) * perMinuteRate.auto)),
         car: Math.round(baseFare.car + ((distanceTime.distance.value / 1000) * perKmRate.car) + ((distanceTime.duration.value / 60) * perMinuteRate.car)),
@@ -38,7 +36,6 @@ async function getFare(pickup, destination) {
     };
 
     return fare;
-
 
 }
 
@@ -62,8 +59,6 @@ module.exports.createRide = async ({
     }
 
     const fare = await getFare(pickup, destination);
-
-
 
     const ride = rideModel.create({
         user,
@@ -129,6 +124,8 @@ module.exports.startRide = async ({ rideId, otp, captain }) => {
         status: 'ongoing'
     })
 
+    ride.status = 'ongoing';
+
     return ride;
 }
 
@@ -156,6 +153,7 @@ module.exports.endRide = async ({ rideId, captain }) => {
         status: 'completed'
     })
 
+    ride.status = 'completed';
+
     return ride;
 }
-

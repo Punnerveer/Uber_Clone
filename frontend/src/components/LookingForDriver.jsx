@@ -1,41 +1,85 @@
 import React from 'react'
 
-const LookingForDriver = (props) => {
-    return (
-        <div>
-            <h5 className='p-1 text-center w-[93%] absolute top-0' onClick={() => {
-                props.setVehicleFound(false)
-            }}><i className="text-3xl text-gray-200 ri-arrow-down-wide-line"></i></h5>
-            <h3 className='text-2xl font-semibold mb-5'>Looking for a Driver</h3>
+const LookingForDriver = ({ pickup, destination, fare, vehicleType, setVehicleFound }) => {
+  return (
+    <div className='p-5 pt-3'>
+      {/* Drag handle */}
+      <div
+        onClick={() => setVehicleFound(false)}
+        className='w-12 h-1.5 bg-neutral-300 rounded-full mx-auto mb-4 cursor-pointer hover:bg-neutral-400 transition-colors'
+      ></div>
 
-            <div className='flex gap-2 justify-between flex-col items-center'>
-                <img className='h-20' src="https://swyft.pl/wp-content/uploads/2023/05/how-many-people-can-a-uberx-take.jpg" alt="" />
-                <div className='w-full mt-5'>
-                    <div className='flex items-center gap-5 p-3 border-b-2'>
-                        <i className="ri-map-pin-user-fill"></i>
-                        <div>
-                            <h3 className='text-lg font-medium'>562/11-A</h3>
-                            <p className='text-sm -mt-1 text-gray-600'>{props.pickup}</p>
-                        </div>
-                    </div>
-                    <div className='flex items-center gap-5 p-3 border-b-2'>
-                        <i className="text-lg ri-map-pin-2-fill"></i>
-                        <div>
-                            <h3 className='text-lg font-medium'>562/11-A</h3>
-                            <p className='text-sm -mt-1 text-gray-600'>{props.destination}</p>
-                        </div>
-                    </div>
-                    <div className='flex items-center gap-5 p-3'>
-                        <i className="ri-currency-line"></i>
-                        <div>
-                            <h3 className='text-lg font-medium'>₹{props.fare[ props.vehicleType ]} </h3>
-                            <p className='text-sm -mt-1 text-gray-600'>Cash Cash</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+      <div className='text-center mb-5'>
+        {/* Animated Radar Pulse Container */}
+        <div className='relative w-24 h-24 mx-auto flex items-center justify-center mb-3'>
+          <div className='absolute inset-0 rounded-full bg-emerald-500/20 animate-ping'></div>
+          <div className='absolute w-16 h-16 rounded-full bg-emerald-500/30 animate-pulse'></div>
+          <div className='relative w-12 h-12 bg-black rounded-full flex items-center justify-center text-white shadow-xl'>
+            <i className="ri-car-fill text-2xl animate-bounce"></i>
+          </div>
         </div>
-    )
+
+        <h3 className='text-xl font-bold text-neutral-900'>Looking for a Driver</h3>
+        <p className='text-xs text-neutral-500 mt-1 flex items-center justify-center gap-1.5'>
+          <span className='w-2 h-2 rounded-full bg-emerald-500 animate-pulse'></span>
+          Broadcasting request to nearby captains...
+        </p>
+
+        {/* Shimmer loading progress bar */}
+        <div className='w-48 h-1 bg-neutral-100 rounded-full mx-auto mt-3 overflow-hidden'>
+          <div className='w-full h-full bg-black rounded-full animate-pulse'></div>
+        </div>
+      </div>
+
+      {/* Ride Details Summary Card */}
+      <div className='space-y-3 bg-neutral-50 p-4 rounded-2xl border border-neutral-100 mb-4'>
+        {/* Pickup */}
+        <div className='flex items-start gap-3'>
+          <div className='w-5 flex flex-col items-center mt-1'>
+            <div className='w-2.5 h-2.5 rounded-full bg-emerald-600'></div>
+            <div className='w-0.5 h-5 bg-neutral-300 my-0.5'></div>
+          </div>
+          <div className='flex-1 overflow-hidden'>
+            <span className='text-[10px] font-bold text-neutral-400 uppercase tracking-wider'>Pickup Location</span>
+            <p className='text-xs font-semibold text-neutral-800 truncate'>{pickup || 'Your current location'}</p>
+          </div>
+        </div>
+
+        {/* Destination */}
+        <div className='flex items-start gap-3'>
+          <div className='w-5 flex items-center justify-center mt-0.5'>
+            <div className='w-2.5 h-2.5 bg-neutral-900'></div>
+          </div>
+          <div className='flex-1 overflow-hidden'>
+            <span className='text-[10px] font-bold text-neutral-400 uppercase tracking-wider'>Destination</span>
+            <p className='text-xs font-semibold text-neutral-800 truncate'>{destination || 'Selected drop point'}</p>
+          </div>
+        </div>
+
+        {/* Price & Vehicle Type */}
+        <div className='pt-2 border-t border-neutral-200 flex items-center justify-between'>
+          <div className='flex items-center gap-2'>
+            <span className='px-2.5 py-1 bg-neutral-200 text-neutral-800 text-[11px] font-bold rounded-lg uppercase'>
+              {vehicleType || 'UberGo'}
+            </span>
+            <span className='text-xs text-neutral-500'>Cash payment</span>
+          </div>
+          <span className='text-lg font-extrabold text-neutral-900'>
+            ₹{fare?.[vehicleType] || 305}
+          </span>
+        </div>
+      </div>
+
+      {/* Cancel Search Button */}
+      <button
+        onClick={() => setVehicleFound(false)}
+        className='w-full bg-neutral-100 hover:bg-red-50 hover:text-red-600 text-neutral-700 font-semibold py-3.5 px-4 rounded-xl transition-all border border-neutral-200 text-sm flex items-center justify-center gap-1.5'
+      >
+        <i className="ri-close-circle-line text-base"></i>
+        <span>Cancel ride search</span>
+      </button>
+    </div>
+  )
 }
 
 export default LookingForDriver

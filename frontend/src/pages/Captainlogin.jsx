@@ -1,84 +1,142 @@
-import React, { useState } from 'react'
-import { Link } from 'react-router-dom'
-import { useNavigate } from 'react-router-dom'
+import React, { useState, useContext } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { CaptainDataContext } from '../context/CapatainContext'
 
 const Captainlogin = () => {
-
   const [ email, setEmail ] = useState('')
   const [ password, setPassword ] = useState('')
+  const [ errorMessage, setErrorMessage ] = useState('')
+  const [ isLoading, setIsLoading ] = useState(false)
 
-  const { captain, setCaptain } = React.useContext(CaptainDataContext)
+  const { setCaptain } = useContext(CaptainDataContext)
   const navigate = useNavigate()
 
-
-
   const submitHandler = async (e) => {
-    e.preventDefault();
-    const captain = {
-      email: email,
-      password
+    e.preventDefault()
+    setErrorMessage('')
+    setIsLoading(true)
+
+    const captainData = { email, password }
+
+    try {
+      const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/captains/login`, captainData)
+
+      if (response.status === 200) {
+        const data = response.data
+        setCaptain(data.captain)
+        localStorage.setItem('captain-token', data.token)
+        navigate('/captain-home')
+      }
+    } catch (error) {
+      console.error(error)
+      const msg = error.response?.data?.message || error.response?.data?.errors?.[0]?.msg || 'Login failed. Please check your credentials.'
+      setErrorMessage(msg)
+    } finally {
+      setIsLoading(false)
     }
-
-    const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/captains/login`, captain)
-
-    if (response.status === 200) {
-      const data = response.data
-
-      setCaptain(data.captain)
-      localStorage.setItem('token', data.token)
-      navigate('/captain-home')
-
-    }
-
-    setEmail('')
-    setPassword('')
   }
+
   return (
-    <div className='p-7 h-screen flex flex-col justify-between'>
+    <div className='h-full flex flex-col justify-between p-7 bg-white overflow-y-auto'>
       <div>
-        <img className='w-20 mb-3' src="https://www.svgrepo.com/show/505031/uber-driver.svg" alt="" />
+        {/* Top Header */}
+        <div className='flex items-center justify-between mb-8 pt-2'>
+          <Link to='/' className='w-10 h-10 rounded-full bg-neutral-100 flex items-center justify-center hover:bg-neutral-200 transition-colors'>
+            <i className="ri-arrow-left-line text-lg text-neutral-700"></i>
+          </Link>
+          <div className='flex items-center gap-2 bg-neutral-900 text-white px-3 py-1.5 rounded-full'>
+            <i className="ri-steering-2-fill text-yellow-400 text-base"></i>
+            <span className='text-xs font-bold uppercase tracking-wider'>Driver Portal</span>
+          </div>
+          <div className='w-10'></div>
+        </div>
 
-        <form onSubmit={(e) => {
-          submitHandler(e)
-        }}>
-          <h3 className='text-lg font-medium mb-2'>What's your email</h3>
-          <input
-            required
-            value={email}
-            onChange={(e) => {
-              setEmail(e.target.value)
-            }}
-            className='bg-[#eeeeee] mb-7 rounded-lg px-4 py-2 border w-full text-lg placeholder:text-base'
-            type="email"
-            placeholder='email@example.com'
-          />
+        {/* Heading */}
+        <div className='mb-6'>
+          <h2 className='text-2xl font-bold text-neutral-900'>Driver Sign in</h2>
+          <p className='text-sm text-neutral-500 mt-1'>Log in to view incoming ride requests</p>
+        </div>
 
-          <h3 className='text-lg font-medium mb-2'>Enter Password</h3>
+        {/* Error Alert */}
+        {errorMessage && (
+          <div className='mb-5 p-3.5 bg-red-50 border border-red-200 rounded-xl flex items-center gap-2.5 text-red-600 text-sm'>
+            <i className="ri-error-warning-fill text-lg shrink-0"></i>
+            <span>{errorMessage}</span>
+          </div>
+        )}
 
-          <input
-            className='bg-[#eeeeee] mb-7 rounded-lg px-4 py-2 border w-full text-lg placeholder:text-base'
-            value={password}
-            onChange={(e) => {
-              setPassword(e.target.value)
-            }}
-            required type="password"
-            placeholder='password'
-          />
+        {/* Form */}
+        <form onSubmit={submitHandler} className='space-y-4'>
+          <div>
+            <label className='block text-xs font-semibold text-neutral-700 uppercase tracking-wider mb-1.5'>Driver Email</label>
+            <div className='relative flex items-center'>
+              <i className="ri-mail-line absolute left-4 text-neutral-400 text-lg"></i>
+              <input
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className='w-full bg-neutral-50 border border-neutral-200 rounded-xl px-4 py-3.5 pl-11 text-neutral-900 placeholder-neutral-400 text-base focus:outline-none focus:border-black focus:bg-white transition-all'
+                type="email"
+                placeholder='driver@example.com'
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className='block text-xs font-semibold text-neutral-700 uppercase tracking-wider mb-1.5'>Password</label>
+            <div className='relative flex items-center'>
+              <i className="ri-lock-line absolute left-4 text-neutral-400 text-lg"></i>
+              <input
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className='w-full bg-neutral-50 border border-neutral-200 rounded-xl px-4 py-3.5 pl-11 text-neutral-900 placeholder-neutral-400 text-base focus:outline-none focus:border-black focus:bg-white transition-all'
+                type="password"
+                placeholder='••••••••'
+              />
+            </div>
+          </div>
 
           <button
-            className='bg-[#111] text-white font-semibold mb-3 rounded-lg px-4 py-2 w-full text-lg placeholder:text-base'
-          >Login</button>
-
+            type="submit"
+            disabled={isLoading}
+            className='w-full bg-black hover:bg-neutral-800 text-white font-semibold py-3.5 px-4 rounded-xl transition-all shadow-md shadow-black/10 flex items-center justify-center gap-2 mt-2 disabled:opacity-60'
+          >
+            {isLoading ? (
+              <span className='inline-block w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin'></span>
+            ) : (
+              <>
+                <span>Sign in as Driver</span>
+                <i className="ri-arrow-right-line"></i>
+              </>
+            )}
+          </button>
         </form>
-        <p className='text-center'>Join a fleet? <Link to='/captain-signup' className='text-blue-600'>Register as a Captain</Link></p>
+
+        <p className='text-center text-sm text-neutral-600 mt-6'>
+          Want to drive with us?{' '}
+          <Link to='/captain-signup' className='font-semibold text-emerald-600 hover:underline'>
+            Register vehicle
+          </Link>
+        </p>
       </div>
-      <div>
+
+      {/* Switch to Rider */}
+      <div className='pt-6'>
+        <div className='relative flex py-3 items-center mb-4'>
+          <div className='flex-grow border-t border-neutral-200'></div>
+          <span className='flex-shrink mx-4 text-xs uppercase text-neutral-400 font-semibold tracking-wider'>Or</span>
+          <div className='flex-grow border-t border-neutral-200'></div>
+        </div>
+
         <Link
           to='/login'
-          className='bg-[#d5622d] flex items-center justify-center text-white font-semibold mb-5 rounded-lg px-4 py-2 w-full text-lg placeholder:text-base'
-        >Sign in as User</Link>
+          className='w-full border-2 border-neutral-200 hover:border-black bg-white flex items-center justify-center gap-2 text-neutral-900 font-semibold py-3.5 rounded-xl transition-all text-sm'
+        >
+          <i className="ri-user-fill text-lg"></i>
+          <span>Sign in as Rider</span>
+        </Link>
       </div>
     </div>
   )

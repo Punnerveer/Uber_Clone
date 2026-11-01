@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import React from 'react'
 import { Route, Routes } from 'react-router-dom'
 import Start from './pages/Start'
 import UserLogin from './pages/UserLogin'
@@ -16,9 +16,8 @@ import CaptainRiding from './pages/CaptainRiding'
 import 'remixicon/fonts/remixicon.css'
 
 const App = () => {
-
   return (
-    <div>
+    <div className='w-full h-screen relative overflow-hidden bg-white'>
       <Routes>
         <Route path='/' element={<Start />} />
         <Route path='/login' element={<UserLogin />} />
@@ -35,15 +34,15 @@ const App = () => {
             </UserProtectWrapper>
           } />
         <Route path='/user/logout'
-          element={<UserProtectWrapper>
-            <UserLogout />
-          </UserProtectWrapper>
+          element={
+            <UserProtectWrapper>
+              <UserLogout />
+            </UserProtectWrapper>
           } />
         <Route path='/captain-home' element={
           <CaptainProtectWrapper>
             <CaptainHome />
           </CaptainProtectWrapper>
-
         } />
         <Route path='/captain/logout' element={
           <CaptainProtectWrapper>
